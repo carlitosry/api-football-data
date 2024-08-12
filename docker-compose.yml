@@ -1,0 +1,25 @@
+version: '3.7'
+services:
+  app:
+    build: .
+    ports:
+        - "19999:80"
+    depends_on:
+      - db
+    volumes:
+      - .:/var/www/html
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: symfony
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    ports:
+      - "3333:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+volumes:
+  db-data:
+  cache:
+    driver: local
