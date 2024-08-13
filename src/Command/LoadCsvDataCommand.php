@@ -4,10 +4,10 @@ namespace App\Command;
 use App\Entity\Team;
 use App\Entity\Season;
 use App\Entity\Stadium;
-use App\Entity\Matches;
 use App\Entity\Competition;
 use App\Entity\Player;
 use App\Service\MatchGeneratorService;
+use App\Service\SeasonGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Exception;
 use League\Csv\Reader;
@@ -29,7 +29,8 @@ class LoadCsvDataCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly MatchGeneratorService $matchGeneratorService
+        private readonly MatchGeneratorService $matchGenerator,
+        private readonly SeasonGeneratorService $seasonGenerator,
     )
     {
         parent::__construct();
@@ -61,6 +62,8 @@ class LoadCsvDataCommand extends Command
         $reader->setHeaderOffset(0); // Set the header offset
         $records = $reader->getRecords();
 
+        $this->seasonGenerator->generateSeasons((int)(new \DateTime())->format('Y'), 3);
+
         foreach ($records as $record) {
             $team = $this->findOrCreateTeam($record);
             $this->findOrCreatePlayer($record, $team);
@@ -68,7 +71,7 @@ class LoadCsvDataCommand extends Command
         }
 
         $this->entityManager->flush();
-        $this->matchGeneratorService->generateMatches();
+        $this->matchGenerator->generateMatches();
 
         $output->writeln('<info>Data loaded successfully.</info>');
         return Command::SUCCESS;
@@ -160,19 +163,20 @@ class LoadCsvDataCommand extends Command
             $competition = new Competition;
             $competition->setName($record['competition']);
 
-            $season = new Season;
+            $currentYear = (int) (new \DateTime())->format('Y');
+            $seasonName = $this->seasonGenerator->buildSeasonName($currentYear + 1, $currentYear +2);
 
-            /** Since the file CSV does not contain season information, this entity will be created with the next hypothetical season. */
-            $seasonDate = new \DateTime('now');
-            $season->setName($seasonDate->format('YYYY'))
-                ->setStartDate($seasonDate->add(new \DateInterval('P30D')))
-                ->setEndDate($seasonDate->add(new \DateInterval('P90D')));
-            $this->entityManager->persist($season);
+            $seasonRepository = $this->entityManager->getRepository(Season::class);
+            $season = $seasonRepository->findOneBy(['name' => $seasonName]);
 
-            // Assign the persisted season to the competition
-            $competition->setSeason($season);
+            if($season){
+                /** Since the file CSV does not contain season information, this entity will be created with the next hypothetical season. */
+                $competition->setSeason($season);
+            }
+
             $this->entityManager->persist($competition);
         }
+        $this->entityManager->flush();
 
     }
 }
