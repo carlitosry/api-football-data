@@ -30,27 +30,27 @@ class Matches
 
     #[ORM\ManyToOne(targetEntity: Team::class, inversedBy: 'matches')]
     #[ORM\JoinColumn(name: 'team_a_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    #[Groups(['matches:collection:get' ])]
+    #[Groups(['admin:read'])]
     private ?Team $teamA = null;
 
     #[ORM\ManyToOne(targetEntity: Team::class, inversedBy: 'matches')]
     #[ORM\JoinColumn(name: 'team_b_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    #[Groups(['matches:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?Team $teamB = null;
 
     #[ORM\Column(type: 'datetime')]
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
-    #[Groups(['matches:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\ManyToOne(targetEntity: Stadium::class)]
     #[ORM\JoinColumn(name: 'stadium_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    #[Groups(['matches:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?Stadium $stadium = null;
 
     #[ORM\ManyToOne(targetEntity: Competition::class)]
     #[ORM\JoinColumn(name: 'competition_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    #[Groups(['matches:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?Competition $competition = null;
 
     public function getId(): ?int
@@ -115,5 +115,11 @@ class Matches
         $this->date = $date;
 
         return $this;
+    }
+
+    #[Groups(['matches:collection:get'])]
+    public function getName(): string
+    {
+        return $this->teamA->getName() . ' vs ' . $this->teamB->getName();
     }
 }

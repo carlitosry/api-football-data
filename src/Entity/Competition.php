@@ -29,7 +29,7 @@ class Competition
     #[Groups(['matches:collection:get', 'competition:collection:get' ])]
     private ?string $name = null;
 
-    #[ORM\OneToOne(targetEntity: Season::class, inversedBy: 'competition', cascade: ['persist'])]
+    #[ORM\OneToOne(targetEntity: Season::class, cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'season_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[Groups(['competition:collection:get'])]
     private ?Season $season = null;

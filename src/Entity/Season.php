@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -16,34 +17,31 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 #[ApiResource(
     operations: [
         new Get(),
-        new GetCollection()
+        new GetCollection(),
     ],
-    normalizationContext: ['groups' => ['season:collection:get']]
+    normalizationContext: ['groups' => ['collection:get']]
 )]
 class Season
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['season:collection:get','competition:collection:get' ])]
+    #[Groups(['collection:get','competition:collection:get'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['season:collection:get','competition:collection:get' ])]
+    #[Groups(['collection:get','competition:collection:get'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['competition:collection:get', 'admin:read'])]
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
-    #[Groups(['season:collection:get', 'competition:collection:get' ])]
     private ?\DateTimeInterface $startDate = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['competition:collection:get', 'admin:read'])]
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
-    #[Groups(['season:collection:get', 'competition:collection:get' ])]
     private ?\DateTimeInterface $endDate = null;
-
-    #[ORM\OneToOne(targetEntity: Competition::class, mappedBy: 'season')]
-    private ?Competition $competition = null;
 
     public function getId(): ?int
     {
@@ -82,28 +80,6 @@ class Season
     public function setEndDate(\DateTimeInterface $endDate): static
     {
         $this->endDate = $endDate;
-
-        return $this;
-    }
-
-    public function getCompetition(): ?Competition
-    {
-        return $this->competition;
-    }
-
-    public function setCompetition(?Competition $competition): static
-    {
-        // unset the owning side of the relation if necessary
-        if ($competition === null && $this->competition !== null) {
-            $this->competition->setSeason(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($competition !== null && $competition->getSeason() !== $this) {
-            $competition->setSeason($this);
-        }
-
-        $this->competition = $competition;
 
         return $this;
     }

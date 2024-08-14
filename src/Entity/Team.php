@@ -33,29 +33,29 @@ class Team
     private ?string $name = null;
 
     #[ORM\Column(length: 10)]
-    #[Groups(['team:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?string $shortname = null;
 
     #[ORM\Column(type: 'datetime')]
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
-    #[Groups(['team:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?\DateTimeInterface $foundation = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['team:collection:get', 'matches:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?string $shield = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['team:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?string $photo = null;
 
     #[ORM\ManyToOne(targetEntity: Stadium::class)]
     #[ORM\JoinColumn(name: 'stadium_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    #[Groups(['team:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?Stadium $stadium = null;
 
     #[ORM\OneToMany(targetEntity: Player::class, mappedBy: 'team', cascade: ['persist'], orphanRemoval: true)]
-    #[Groups(['team:collection:get'])]
+    #[Groups(['admin:read'])]
     private Collection $players;
 
     #[ORM\OneToMany(targetEntity: Matches::class, mappedBy: 'team', cascade: ['persist'], orphanRemoval: true)]

@@ -16,69 +16,84 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
     operations: [
         new Get(),
         new GetCollection()
-    ]
+    ],
+    normalizationContext: ['groups' => ['collection:get']]
 )]
 class Player
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['team:collection:get'])]
+    #[Groups(['collection:get', 'team:collection:get'])]
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Groups(['team:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?int $externalId = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['admin:read'])]
     private ?string $externalUrl = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['admin:read'])]
     private ?string $slug = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['admin:read'])]
     private ?string $nickname = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['admin:read'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['admin:read'])]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 10)]
+    #[Groups(['admin:read'])]
     private ?string $gender = null;
 
     #[ORM\Column(type: 'datetime')]
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
+    #[Groups(['admin:read'])]
     private ?\DateTimeInterface $dateOfBirth = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['admin:read'])]
     private ?string $placeOfBirth = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups(['admin:read'])]
     private ?int $weight = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups(['admin:read'])]
     private ?int $height = null;
 
     #[ORM\Column(type: 'boolean')]
+    #[Groups(['admin:read'])]
     private bool $international = false;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['admin:read'])]
     private ?string $twitter = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['admin:read'])]
     private ?string $instagram = null;
 
     #[ORM\Column(length: 2)]
+    #[Groups(['admin:read'])]
     private ?string $country = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    #[Groups(['team:collection:get'])]
+    #[Groups(['admin:read'])]
     private ?int $shirtNumber = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['team:collection:get'])]
+    #[Groups(['admin:read'])]
     private string $position;
 
     #[ORM\ManyToOne(targetEntity: Team::class, inversedBy: 'players')]
@@ -294,7 +309,7 @@ class Player
 
         return $this;
     }
-    #[Groups(['team:collection:get'])]
+    #[Groups(['collection:get', 'team:collection:get'])]
     public function getFullName(): string
     {
         return $this->firstname . ' ' . $this->lastname;

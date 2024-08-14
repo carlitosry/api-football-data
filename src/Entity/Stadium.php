@@ -14,21 +14,24 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Get(uriTemplate: '/stadiums/{id}'),
         new GetCollection(uriTemplate: '/stadiums')
-    ]
+    ],
+    normalizationContext: ['groups' => ['collection:get']]
+
 )]
 class Stadium
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([ 'matches:collection:get', 'team:collection:get'])]
+    #[Groups(['collection:get', 'matches:collection:get', 'team:collection:get'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups([ 'matches:collection:get', 'team:collection:get'])]
+    #[Groups(['collection:get', 'matches:collection:get', 'team:collection:get'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['admin:read'])]
     private ?string $stadiumImage = null;
 
     public function getId(): ?int
