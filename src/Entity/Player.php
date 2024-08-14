@@ -3,19 +3,31 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\PlayerRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Context;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 #[ORM\Entity(repositoryClass: PlayerRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection()
+    ]
+)]
 class Player
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['team:collection:get'])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(['team:collection:get'])]
     private ?int $externalId = null;
 
     #[ORM\Column(length: 255)]
@@ -37,10 +49,11 @@ class Player
     private ?string $gender = null;
 
     #[ORM\Column(type: 'datetime')]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
     private ?\DateTimeInterface $dateOfBirth = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $place_of_birth = null;
+    private ?string $placeOfBirth = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $weight = null;
@@ -61,9 +74,11 @@ class Player
     private ?string $country = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups(['team:collection:get'])]
     private ?int $shirtNumber = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['team:collection:get'])]
     private string $position;
 
     #[ORM\ManyToOne(targetEntity: Team::class, inversedBy: 'players')]
@@ -148,12 +163,12 @@ class Player
 
     public function getPlaceOfBirth(): ?string
     {
-        return $this->place_of_birth;
+        return $this->placeOfBirth;
     }
 
-    public function setPlaceOfBirth(?string $place_of_birth): Player
+    public function setPlaceOfBirth(?string $placeOfBirth): Player
     {
-        $this->place_of_birth = $place_of_birth;
+        $this->placeOfBirth = $placeOfBirth;
         return $this;
     }
 
@@ -278,5 +293,10 @@ class Player
         $this->externalUrl = $externalUrl;
 
         return $this;
+    }
+    #[Groups(['team:collection:get'])]
+    public function getFullName(): string
+    {
+        return $this->firstname . ' ' . $this->lastname;
     }
 }
