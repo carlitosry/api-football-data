@@ -13,11 +13,17 @@ use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Bundle\SecurityBundle\Security;
+
 
 class ApiTokenAuthenticator extends AbstractAuthenticator
 {
 
-    public function __construct(private readonly ApiTokenRepository $apiTokenRepository)
+    public function __construct(
+        private readonly ApiTokenRepository $apiTokenRepository,
+        private Security $security,
+
+    )
     {
     }
 
@@ -57,6 +63,8 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         // on success, let the request continue
+//        dump($token->getUser()->getRoles());
+//        dump($this->security->isGranted($token->getUser()->getRoles()[0]));
         return null;
     }
 
