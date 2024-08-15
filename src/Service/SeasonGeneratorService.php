@@ -48,9 +48,6 @@ class SeasonGeneratorService
             // Persist each season to the database
             $this->entityManager->persist($season);
         }
-
-        // Flush once after all seasons have been persisted
-        $this->entityManager->flush();
     }
 
     public function buildSeasonName(int $startYear, int $endYear): string

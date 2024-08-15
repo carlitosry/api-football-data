@@ -6,7 +6,9 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\CompetitionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CompetitionRepository::class)]
@@ -29,10 +31,15 @@ class Competition
     #[Groups(['matches:collection:get', 'competition:collection:get' ])]
     private ?string $name = null;
 
-    #[ORM\OneToOne(targetEntity: Season::class, cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: Season::class, mappedBy: 'competition')]
     #[ORM\JoinColumn(name: 'season_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[Groups(['competition:collection:get'])]
-    private ?Season $season = null;
+    private Collection $seasons ;
+
+    public function __construct()
+    {
+        $this->seasons = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -51,15 +58,34 @@ class Competition
         return $this;
     }
 
-    public function getSeason(): ?Season
+    /**
+     * @return \Doctrine\Common\Collections\Collection<int, Season>
+     */
+    public function getSeasons(): \Doctrine\Common\Collections\Collection
     {
-        return $this->season;
+        return $this->seasons;
     }
 
-    public function setSeason(Season $season): static
+    public function addSeason(Season $season): static
     {
-        $this->season = $season;
+        if (!$this->seasons->contains($season)) {
+            $this->seasons->add($season);
+            $season->setCompetition($this);
+        }
 
         return $this;
     }
+
+    public function removeSeason(Season $season): static
+    {
+        if ($this->seasons->removeElement($season)) {
+            // set the owning side to null (unless already changed)
+            if ($season->getCompetition() === $this) {
+                $season->setCompetition(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

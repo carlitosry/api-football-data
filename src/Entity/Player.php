@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\PlayerRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Context;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -84,7 +85,7 @@ class Player
     #[Groups(['admin:read'])]
     private ?string $instagram = null;
 
-    #[ORM\Column(length: 2)]
+    #[ORM\Column(length: 255)]
     #[Groups(['admin:read'])]
     private ?string $country = null;
 
@@ -96,7 +97,7 @@ class Player
     #[Groups(['admin:read'])]
     private string $position;
 
-    #[ORM\ManyToOne(targetEntity: Team::class, inversedBy: 'players')]
+    #[ORM\ManyToOne(targetEntity: Team::class, cascade: ["persist"], inversedBy: 'players')]
     #[ORM\JoinColumn(name: 'team_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Team $team = null;
 

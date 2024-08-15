@@ -49,7 +49,7 @@ class Team
     #[Groups(['admin:read'])]
     private ?string $photo = null;
 
-    #[ORM\ManyToOne(targetEntity: Stadium::class)]
+    #[ORM\ManyToOne(targetEntity: Stadium::class, cascade:["persist"])]
     #[ORM\JoinColumn(name: 'stadium_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[Groups(['admin:read'])]
     private ?Stadium $stadium = null;

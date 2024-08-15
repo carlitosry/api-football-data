@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\MatchesRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\Context;
@@ -28,12 +29,12 @@ class Matches
     #[Groups(['matches:collection:get'])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Team::class, inversedBy: 'matches')]
+    #[ORM\ManyToOne(targetEntity: Team::class, cascade: ["persist"], inversedBy: 'matches')]
     #[ORM\JoinColumn(name: 'team_a_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[Groups(['admin:read'])]
     private ?Team $teamA = null;
 
-    #[ORM\ManyToOne(targetEntity: Team::class, inversedBy: 'matches')]
+    #[ORM\ManyToOne(targetEntity: Team::class, cascade:["persist"], inversedBy: 'matches')]
     #[ORM\JoinColumn(name: 'team_b_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[Groups(['admin:read'])]
     private ?Team $teamB = null;
@@ -43,12 +44,12 @@ class Matches
     #[Groups(['admin:read'])]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\ManyToOne(targetEntity: Stadium::class)]
+    #[ORM\ManyToOne(targetEntity: Stadium::class, cascade:["persist"])]
     #[ORM\JoinColumn(name: 'stadium_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[Groups(['admin:read'])]
     private ?Stadium $stadium = null;
 
-    #[ORM\ManyToOne(targetEntity: Competition::class)]
+    #[ORM\ManyToOne(targetEntity: Competition::class, cascade:["persist"])]
     #[ORM\JoinColumn(name: 'competition_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[Groups(['admin:read'])]
     private ?Competition $competition = null;

@@ -23,15 +23,13 @@ class MatchGeneratorService
         $stadiums = $this->entityManager->getRepository(Stadium::class)->findAll();
 
         foreach ($competitions as $competition) {
-            $season = $competition->getSeason();
-            if ($season === null) {
+            $seasons = $competition->getSeasons();
+            if ($seasons->count() === 0) {
                 continue; // Skip if no season is associated
             }
 
             $this->createMatchesForCompetition($competition, $stadiums);
         }
-
-        $this->entityManager->flush();
     }
 
     private function createMatchesForCompetition(Competition $competition, array $stadiums): void

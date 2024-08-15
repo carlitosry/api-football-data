@@ -14,6 +14,7 @@ use League\Csv\Reader;
 use League\Csv\UnavailableStream;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -51,6 +52,8 @@ class LoadCsvDataCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        ini_set('memory_limit', '1024M'); // Increase memory limit if necessary
+
         $csvFile = $input->getArgument('csv-file');
 
         if (!file_exists($csvFile)) {
@@ -61,6 +64,9 @@ class LoadCsvDataCommand extends Command
         $reader = Reader::createFromPath($csvFile, 'r');
         $reader->setHeaderOffset(0); // Set the header offset
         $records = $reader->getRecords();
+        $output->writeln('<info>Loading '. iterator_count($records).' records .</info>');
+        $progressBar = new ProgressBar($output, iterator_count($records));
+        $progressBar->start();
 
         $this->seasonGenerator->generateSeasons((int)(new \DateTime())->format('Y'), 3);
 
@@ -68,10 +74,15 @@ class LoadCsvDataCommand extends Command
             $team = $this->findOrCreateTeam($record);
             $this->findOrCreatePlayer($record, $team);
             $this->findOrCreateCompetition($record);
+            $progressBar->advance();
+
         }
 
-        $this->entityManager->flush();
         $this->matchGenerator->generateMatches();
+        $progressBar->advance();
+
+        $this->entityManager->flush();
+        $progressBar->finish();
 
         $output->writeln('<info>Data loaded successfully.</info>');
         return Command::SUCCESS;
@@ -93,8 +104,8 @@ class LoadCsvDataCommand extends Command
                 ->setShield($record['team.shield'])
                 ->setPhoto($record['photo']);
 
-            $stadium = $this->findOrCreateStadium($record);
-            $team->setStadium($stadium);
+                $stadium = $this->findOrCreateStadium($record);
+                $team->setStadium($stadium);
 
             $this->entityManager->persist($team);
         }
@@ -176,7 +187,6 @@ class LoadCsvDataCommand extends Command
 
             $this->entityManager->persist($competition);
         }
-        $this->entityManager->flush();
 
     }
 }
